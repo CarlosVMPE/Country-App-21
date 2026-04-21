@@ -1,0 +1,20 @@
+<!-- <country-search-input placeholder="Search by country"
+  (value)="query.set($event)"/>
+
+ @if(capitalResource.error()){
+  <div class="alert alert-danger mt-5">
+    {{capitalResource.error()}}
+  </div>
+ } @if(capitalResource.hasValue()) {
+   <country-list [countries]="capitalResource.value()!" [errorMessage]="capitalResource.error()"/>
+ }
+ -->
+ <country-search-input placeholder="Search by country"
+  (value)="query.set($event)"/>
+
+ <country-list
+  [countries]="capitalResource.value() ?? []"
+  [errorMessage]="errorMessage()"
+  [isEmpty]="capitalResource.value()?.length === 0"
+  [isLoading]="capitalResource.isLoading()"
+/>
