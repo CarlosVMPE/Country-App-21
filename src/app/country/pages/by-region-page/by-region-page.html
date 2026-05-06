@@ -1,1 +1,11 @@
-<country-list [countries]="[]" />
+@for(option of regionsOptions; track option.region){
+<button class="btn btn-outline mr-2" [ngClass]="option.classType"
+  (click)="selectRegion(option.region)">{{option.region}}</button>
+}
+
+<country-list
+  [countries]="regionResource.value() ?? []"
+  [errorMessage]="errorMessage()"
+  [isEmpty]="regionResource.value()?.length === 0"
+  [isLoading]="regionResource.isLoading()"
+/>

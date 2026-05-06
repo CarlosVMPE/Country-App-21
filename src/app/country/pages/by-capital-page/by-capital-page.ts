@@ -1,9 +1,10 @@
-import { Component, inject, resource, signal } from '@angular/core';
+import { Component, inject, linkedSignal, resource, signal } from '@angular/core';
 import { catchError, firstValueFrom, of, tap } from 'rxjs';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SearchInput } from "../../components/search-input/search-input";
 import { CountryList } from "../../components/country-list/country-list";
 import { CountryService } from '../../services/country.service';
-import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'by-capital-page',
@@ -12,14 +13,25 @@ import { rxResource } from '@angular/core/rxjs-interop';
 })
 export class ByCapitalPage {
   countryService = inject(CountryService);
-  query = signal('');
   errorMessage = signal('');
+
+  activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
+  queryParam = this.activatedRoute.snapshot.queryParamMap.get('query') ?? '';
+  query = linkedSignal(() => this.queryParam);
 
   // Using oservables
   capitalResource = rxResource({
     params: () => ({ query: this.query() }),
     stream: ({ params: { query } }) => query ? this.countryService.searchByCapital(query).pipe(
-      tap(() => this.errorMessage.update(() => '')), // Clear previous error message on new search
+      tap(() => {
+        this.errorMessage.update(() => '');
+        this.router.navigate(['/country/by-capital'], {
+          queryParams: {
+            query,
+          }
+        });
+      }), // Clear previous error message on new search
       catchError(err => {
         console.log('Error: ', err.message);
         this.errorMessage.update(() => err.message); // Update error message signal with the error message
